@@ -1,0 +1,90 @@
+[gd_scene load_steps=2 format=3 uid="uid://d3cp28klls8pg"]
+
+[ext_resource type="Script" uid="uid://bat3f5u5wapi8" path="res://addons/spacetime_client/spacetime_client_dock.gd" id="1_tmt4o"]
+
+[node name="SpacetimeClient" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_tmt4o")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+offset_left = 11.0
+offset_top = 6.0
+offset_right = 141.0
+offset_bottom = 29.0
+text = "Spacetime Client"
+
+[node name="ModuleLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 293.0
+offset_right = 444.0
+offset_bottom = 316.0
+text = "Module"
+
+[node name="Module" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 11.0
+offset_top = 327.0
+offset_right = 228.0
+offset_bottom = 366.0
+text = "quickstart-chat"
+placeholder_text = "\"your-module-name\""
+
+[node name="HostLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 209.0
+offset_right = 442.0
+offset_bottom = 232.0
+text = "Host:"
+
+[node name="Host" type="TextEdit" parent="."]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 243.0
+offset_right = 227.0
+offset_bottom = 282.0
+text = "http://localhost:3000"
+placeholder_text = "\"http://localhost:3000\""
+
+[node name="ServerPathLabel" type="Label" parent="."]
+layout_mode = 1
+offset_left = 9.0
+offset_top = 53.0
+offset_right = 442.0
+offset_bottom = 76.0
+text = "Server path (relative to the location of the res::// folder):"
+
+[node name="generate_bindings_btn" type="Button" parent="."]
+layout_mode = 1
+offset_left = 12.0
+offset_top = 144.0
+offset_right = 162.0
+offset_bottom = 175.0
+text = "Generate bindings"
+
+[node name="generate_client_btn" type="Button" parent="."]
+layout_mode = 1
+offset_left = 12.0
+offset_top = 376.0
+offset_right = 226.0
+offset_bottom = 407.0
+text = "Generate Spacetime Client"
+
+[node name="ServerPath" type="TextEdit" parent="."]
+layout_mode = 1
+offset_left = 13.0
+offset_top = 79.0
+offset_right = 230.0
+offset_bottom = 118.0
+text = "../server"
+placeholder_text = "\"../server\""
+
+[connection signal="pressed" from="generate_bindings_btn" to="." method="_on_generate_bindings_btn_pressed"]
+[connection signal="pressed" from="generate_client_btn" to="." method="_on_generate_client_btn_pressed"]
