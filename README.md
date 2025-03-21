@@ -17,6 +17,6 @@ If you want you can modify the SpacetimeClient.cs script as you like, because it
 
 ## Known issues
 
-- The types of your tables cannot be transfered to GdScript, so all the callbacks will only refer the arguments as simple objects. (If you have a callback on PlayerInserted, then you will only access to inserted_row: Object, and will not have the typing of the row) However every data will be transfered ^roperly.
-- One exception to the above is if you try to access a field of type Identity, as it cannot be directly transfered in godot it will not exist
+- The types of your tables cannot be transfered to GdScript, so all the callbacks will only refer the arguments as simple objects. (If you have a callback on PlayerInserted, then you will only access to inserted_row: Object, and will not have the typing of the row) However every data will be transfered properly.
+- One exception to the above is if you try to access a field of type Identity, as it cannot be directly transfered in godot it will not exist. However you can still send the object into a custom method you defined in your SpacetimeClient.cs file to retreive the id as a string for example.
 - If you have Reducer or Table name conflicts with godot or C#. for example if you call your reducer "SetName" it will conflicts with the one from godot. Or if you call some custom stdb type "Color", the type will be godot compatible, but it will generate an error because it will not know if you refer to the Spacetime.Types.color or Godot.Color in the C# script.
