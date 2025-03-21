@@ -35,6 +35,8 @@ func save_config():
 
 func upate_spacetime_client():
 	print("\nModifying the BaseSpacetimeClient...");
+	
+#	Adding all the callbacks signals for each table
 	var spacetime_classes = [];
 	for file_name in DirAccess.open("res://module_bindings/Tables/").get_files():
 		if file_name.substr(len(file_name)-3, 3) == ".cs":
@@ -62,7 +64,38 @@ func upate_spacetime_client():
 		content = insert_at_pattern(content, "// Insert Callbacks", "\n	void "+spdb_class+"_OnInsert(EventContext ctx, "+spdb_class+" inserted_row){\n		EmitSignal(SignalName."+spdb_class+"Inserted, inserted_row);\n	}");
 		content = insert_at_pattern(content, "// Update Callbacks", "\n	void "+spdb_class+"_OnUpdate(EventContext ctx, "+spdb_class+" old_row, "+spdb_class+" new_row){\n		EmitSignal(SignalName."+spdb_class+"Updated, old_row, new_row);\n	}");
 		content = insert_at_pattern(content, "// Delete Callbacks", "\n	void "+spdb_class+"_OnDelete(EventContext ctx, "+spdb_class+" deleted_row){\n		EmitSignal(SignalName."+spdb_class+"Deleted, deleted_row);\n	}");
-		
+	
+#		Adding the reducers
+	var reducers_name = [];
+	for file_name in DirAccess.open("res://module_bindings/Reducers/").get_files():
+		if file_name.substr(len(file_name)-3, 3) == ".cs":
+			var reducer_name = file_name.substr(0, len(file_name)-5);
+			var reducer_file = FileAccess.open("res://module_bindings/Reducers/"+reducer_name+".g.cs", FileAccess.READ);
+			var reducer_content = reducer_file.get_as_text();
+			var pattern = "public void "+reducer_name+"(";
+			var start_reducer_method_index = reducer_content.find(pattern);
+			if start_reducer_method_index >= 0:
+				reducers_name.append(reducer_name);
+	
+	for reducer_name in reducers_name:
+		var reducer_file = FileAccess.open("res://module_bindings/Reducers/"+reducer_name+".g.cs", FileAccess.READ);
+		var reducer_content = reducer_file.get_as_text();
+		var pattern = "public void "+reducer_name+"(";
+		var start_reducer_method_index = reducer_content.find(pattern) + len(pattern);
+		var method_arguments = ""
+		var char = '';
+		while char != ')':
+			method_arguments += char;
+			char = reducer_content[start_reducer_method_index]
+			start_reducer_method_index += 1
+		var var_names = method_arguments.split(" ")
+		var call_arguments = ""
+		for k in range(len(var_names)):
+			if k % 2 == 1:
+				call_arguments += var_names[k];
+		content = insert_at_pattern(content, "// Reducers", "\n\n	public void "+reducer_name+"("+method_arguments+"){\n		if (conn == null){\n			return;\n		}\n		conn.Reducers."+reducer_name+"("+call_arguments+");\n	}");
+			
+#		Update the file with the new content
 		var file = FileAccess.open("res://addons/spacetime_client/BaseSpacetimeClient.cs", FileAccess.WRITE);
 		file.store_string(content);
 		
@@ -70,7 +103,7 @@ func update_module_bindings():
 	print("\nUpdating module bindings...");
 	var server_path = $ServerPath.text;
 	var output = []
-	var exite_code = OS.execute("spacetime", ["generate", "--lang", "csharp", "-p", server_path, "-o", "./module_bindings"], output, true, true)
+	var exite_code = OS.execute("spacetime", ["generate", "-y", "--lang", "csharp", "-p", server_path, "-o", "./module_bindings"], output, true, true)
 	for out in output:
 		print(out)
 	
@@ -86,7 +119,7 @@ func update_module_bindings():
 #			Adding the import
 			content = insert_at_pattern(content, "using System.Runtime.Serialization;", "\nusing Godot;");
 #			Adding the GodotObject extension class
-			content = insert_at_pattern(content, "class "+ spacetime_type_name, ": GodotObject");
+			content = insert_at_pattern(content, "class "+ spacetime_type_name, ": RefCounted");
 			
 			file.store_string(content)
 
@@ -186,8 +219,10 @@ public partial class BaseSpacetimeClient : Node
 	// Insert Callbacks
 	// Update Callbacks
 	// Delete Callbacks
+	
+	// Reducers
 
-	/// On sync data
+	// On sync data
 	void OnSubscriptionApplied(SubscriptionEventContext ctx)
 	{
 		EmitSignal(SignalName.SubscriptionApplied, []);
